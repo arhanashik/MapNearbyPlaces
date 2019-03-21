@@ -1,12 +1,9 @@
 package chellin.com.mapstutorial;
 
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -15,10 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -58,8 +51,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
     }
 
 
@@ -71,7 +65,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 //        mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
 //        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -87,50 +80,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
-        Button btnRestaurant = (Button) findViewById(R.id.btnRestaurant);
+        Button btnRestaurant = findViewById(R.id.btnRestaurant);
         btnRestaurant.setOnClickListener(new View.OnClickListener() {
             String Restaurant = "restaurant";
             @Override
             public void onClick(View v) {
-                Log.d("onClick", "Button is Clicked");
                 mMap.clear();
 
                 String url = getUrl(mLastLocation.getLatitude(), mLastLocation.getLongitude(), Restaurant);
                 Object[] DataTransfer = new Object[2];
                 DataTransfer[0] = mMap;
                 DataTransfer[1] = url;
-                Log.d("onClick", url);
                 GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
                 getNearbyPlacesData.execute(DataTransfer);
                 Toast.makeText(MapsActivity.this,"Nearby Restaurants", Toast.LENGTH_LONG).show();
-//                Toast.makeText(MapsActivity.this,"lat: "+lati+" , long"+longi , Toast.LENGTH_LONG).show();
             }
         });
 
-        Button btnHospital = (Button) findViewById(R.id.btnHospital);
+        Button btnHospital = findViewById(R.id.btnHospital);
         btnHospital.setOnClickListener(new View.OnClickListener() {
             String Hospital = "hospital";
             @Override
             public void onClick(View v) {
-                Log.d("onClick", "Button is Clicked");
                 mMap.clear();
                 String url = getUrl(mLastLocation.getLatitude(), mLastLocation.getLongitude(), Hospital);
                 Object[] DataTransfer = new Object[2];
                 DataTransfer[0] = mMap;
                 DataTransfer[1] = url;
-                Log.d("onClick", url);
                 GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
                 getNearbyPlacesData.execute(DataTransfer);
                 Toast.makeText(MapsActivity.this,"Nearby Hospitals", Toast.LENGTH_LONG).show();
             }
         });
 
-        Button btnSchool = (Button) findViewById(R.id.btnSchool);
+        Button btnSchool = findViewById(R.id.btnSchool);
         btnSchool.setOnClickListener(new View.OnClickListener() {
             String School = "school";
             @Override
             public void onClick(View v) {
-                Log.d("onClick", "Button is Clicked");
                 mMap.clear();
                 if (mCurrLocationMarker != null) {
                     mCurrLocationMarker.remove();
@@ -139,7 +126,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Object[] DataTransfer = new Object[2];
                 DataTransfer[0] = mMap;
                 DataTransfer[1] = url;
-                Log.d("onClick", url);
                 GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
                 getNearbyPlacesData.execute(DataTransfer);
                 Toast.makeText(MapsActivity.this,"Nearby Schools", Toast.LENGTH_LONG).show();
@@ -160,7 +146,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnected(Bundle bundle) {
-
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
@@ -170,7 +155,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
-
     }
 
     @Override
@@ -206,23 +190,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
+    public void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Asking user if explanation is needed
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
 
                 //Prompt the user once explanation has been shown
                 ActivityCompat.requestPermissions(this,
@@ -231,28 +210,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
             } else {
-                // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
-            return false;
-        } else {
-            return true;
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted. Do the
-                    // contacts-related task you need to do.
                     if (ContextCompat.checkSelfPermission(this,
                             android.Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -264,15 +235,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
 
                 } else {
-
-                    // Permission denied, Disable the functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
                 }
-                return;
             }
-
-            // other 'case' lines to check for other permissions this app might request.
-            // You can add here other case statements according to your requirement.
         }
     }
 
@@ -290,16 +255,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private String getUrl(double latitude, double longitude, String nearbyPlace) {
-
         StringBuilder googlePlacesUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlacesUrl.append("location=" + latitude + "," + longitude);
-        googlePlacesUrl.append("&radius=" + PROXIMITY_RADIUS);
-        googlePlacesUrl.append("&types=" + nearbyPlace);
+        googlePlacesUrl.append("location=").append(latitude).append(",").append(longitude);
+        googlePlacesUrl.append("&radius=").append(PROXIMITY_RADIUS);
+        googlePlacesUrl.append("&types=").append(nearbyPlace);
         googlePlacesUrl.append("&sensor=true");
         googlePlacesUrl.append("&key=" + "AIzaSyBt7_eLLSV66gAbwMPvv8bqp5b9QklPYzc");
         Log.d("getUrl", googlePlacesUrl.toString());
         return (googlePlacesUrl.toString());
     }
-
-
 }
